@@ -110,7 +110,7 @@ finance-optimiser/
 
 ## 👥 Team Details
 
-- **Team Name:** [Your Team Name]
+- **Team Name:** SHER
 - **Domain:** Fintech
 - **Problem Statement:** Personal Finance Optimiser (PS2)
 
