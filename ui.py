@@ -1,0 +1,371 @@
+"""
+Shared UI components for the Personal Finance Optimiser multipage app.
+"""
+import streamlit as st
+import plotly.graph_objects as go
+
+# Colors
+AMBER = "#D4A24C"
+SLATE = "#3E5C76"
+BG = "#0B0F14"
+SURFACE = "#131820"
+TEXT = "#E8E8E8"
+TEXT_DIM = "#8899AA"
+GREEN = "#4CAF50"
+RED = "#E57373"
+
+
+def inject_css():
+    """Inject custom CSS for the dark amber/gold theme."""
+    st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    .stApp {{
+        background-color: {BG};
+    }}
+
+    /* Monospace for numbers */
+    .mono, [data-testid="stMetricValue"] {{
+        font-family: 'JetBrains Mono', monospace !important;
+    }}
+
+    /* Hero metric */
+    .hero-metric {{
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: {AMBER};
+        line-height: 1.1;
+        margin: 0;
+    }}
+    .hero-label {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: {TEXT_DIM};
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 4px;
+    }}
+
+    /* Summary block */
+    .summary-block {{
+        border: 1px solid {SLATE};
+        border-radius: 8px;
+        padding: 20px 24px;
+        background: {SURFACE};
+        margin: 16px 0;
+    }}
+    .summary-block p {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        color: {TEXT};
+        line-height: 1.6;
+        margin: 0;
+    }}
+
+    /* Goal progress */
+    .goal-row {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 8px 0;
+    }}
+    .goal-bar-bg {{
+        flex: 1;
+        height: 8px;
+        background: {SURFACE};
+        border-radius: 4px;
+        overflow: hidden;
+    }}
+    .goal-bar-fill {{
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }}
+    .goal-name {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: {TEXT};
+        min-width: 120px;
+    }}
+    .goal-status {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8rem;
+        color: {TEXT_DIM};
+        min-width: 180px;
+    }}
+
+    /* Allocation bar */
+    .alloc-bar {{
+        display: flex;
+        height: 40px;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 12px 0;
+    }}
+    .alloc-segment {{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: {BG};
+        font-weight: 700;
+        min-width: 30px;
+    }}
+
+    /* Nav styling */
+    .nav-link {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        color: {TEXT_DIM};
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }}
+    .nav-link:hover {{
+        color: {AMBER};
+        background: {SURFACE};
+    }}
+
+    /* Section headers */
+    h1, h2, h3 {{
+        font-family: 'Inter', sans-serif !important;
+    }}
+
+    /* Override Streamlit metric styling */
+    [data-testid="stMetric"] {{
+        background: {SURFACE};
+        border: 1px solid rgba(62, 92, 118, 0.3);
+        border-radius: 8px;
+        padding: 16px;
+    }}
+    [data-testid="stMetricValue"] {{
+        color: {AMBER} !important;
+    }}
+    [data-testid="stMetricLabel"] {{
+        color: {TEXT_DIM} !important;
+    }}
+
+    /* Button styling */
+    .stButton > button {{
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+    }}
+
+    /* Wizard step indicator */
+    .step-indicator {{
+        display: flex;
+        gap: 8px;
+        margin: 20px 0;
+    }}
+    .step-dot {{
+        width: 32px;
+        height: 4px;
+        border-radius: 2px;
+        background: {SURFACE};
+    }}
+    .step-dot.active {{
+        background: {AMBER};
+    }}
+    .step-dot.done {{
+        background: {SLATE};
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+
+def hero_metric_card(value, label, sub_metrics=None):
+    """Render a hero metric with optional sub-metrics."""
+    html = f'<p class="hero-metric">{value}</p><p class="hero-label">{label}</p>'
+    if sub_metrics:
+        for sv, sl in sub_metrics:
+            html += f'<p style="font-family: JetBrains Mono, monospace; font-size: 1rem; color: {TEXT_DIM}; margin-top: 8px;"><span style="color: {TEXT};">{sv}</span> {sl}</p>'
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def summary_block(text):
+    """Render a bordered summary block."""
+    st.markdown(f'<div class="summary-block"><p>{text}</p></div>', unsafe_allow_html=True)
+
+
+def allocation_stacked_bar(allocation):
+    """Render a horizontal stacked bar for allocation."""
+    categories = [
+        ("Emergency Fund", allocation.get("emergency_fund", 0), AMBER),
+        ("Debt Payment", allocation.get("debt_payment", 0), SLATE),
+        ("Savings", allocation.get("savings", 0), "#5B8C5A"),
+        ("Investments", allocation.get("investments", 0), AMBER),
+    ]
+    for gname, gval in allocation.get("goals", {}).items():
+        categories.append((f"Goal: {gname}", gval, "#7E57C2"))
+
+    total = max(1, sum(v for _, v, _ in categories))
+    html = '<div class="alloc-bar">'
+    for name, val, color in categories:
+        pct = (val / total) * 100
+        if pct > 5:
+            html += f'<div class="alloc-segment" style="width:{pct}%; background:{color};" title="{name}: ₹{val:,.0f}">₹{val:,.0f}</div>'
+    html += '</div>'
+
+    # Legend
+    html += '<div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">'
+    for name, val, color in categories:
+        html += f'<span style="font-family:Inter,sans-serif; font-size:0.75rem; color:{TEXT_DIM};"><span style="display:inline-block; width:10px; height:10px; background:{color}; border-radius:2px; margin-right:4px;"></span>{name}: ₹{val:,.0f}</span>'
+    html += '</div>'
+
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def combined_net_worth_chart(projections, amber=AMBER, slate=SLATE):
+    """Combined net worth + debt chart on same axis."""
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=projections["months"], y=projections["net_worth"],
+        name="Net Worth", fill="tozeroy",
+        line=dict(color=amber, width=2),
+        fillcolor="rgba(212, 162, 76, 0.1)"
+    ))
+    fig.add_trace(go.Scatter(
+        x=projections["months"], y=projections["debt_remaining"],
+        name="Debt Remaining",
+        line=dict(color=slate, width=2)
+    ))
+    # Mark debt-free point
+    if projections.get("debt_free_month"):
+        fig.add_vline(x=projections["debt_free_month"], line_dash="dot",
+                      line_color="#4CAF50", annotation_text="Debt-free",
+                      annotation_font_color="#4CAF50")
+
+    fig.update_layout(
+        height=350,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, sans-serif", color=TEXT_DIM),
+        xaxis=dict(gridcolor="rgba(62,92,118,0.15)", title="Months"),
+        yaxis=dict(gridcolor="rgba(62,92,118,0.15)", title="Amount (₹)"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        margin=dict(l=40, r=20, t=40, b=40),
+    )
+    return fig
+
+
+def goal_progress_bars(goals, allocation, horizon):
+    """Render goal progress bars with plain-language status."""
+    for g in goals:
+        monthly_needed = g["amount"] / max(g["deadline_months"], 1)
+        goal_alloc = allocation.get("goals", {}).get(g["name"], 0)
+        total_allocated = goal_alloc * g["deadline_months"]
+        progress = min(100, (total_allocated / max(g["amount"], 1)) * 100)
+
+        if goal_alloc >= monthly_needed * 0.8:
+            status = f"On track for month {g['deadline_months']}"
+            color = GREEN
+        else:
+            shortfall = monthly_needed - goal_alloc
+            months_behind = round(shortfall / max(monthly_needed, 1) * g["deadline_months"])
+            status = f"{months_behind} month(s) behind deadline"
+            color = RED
+
+        st.markdown(f"""
+        <div class="goal-row">
+            <span class="goal-name">{g['name']}</span>
+            <div class="goal-bar-bg">
+                <div class="goal-bar-fill" style="width:{progress}%; background:{color};"></div>
+            </div>
+            <span class="goal-status">{status} — ₹{g['amount']:,.0f} target</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+def plan_report(profile, allocation, method, projections, summary):
+    """Render the full plan report. Used on Plan page, Scenario Lab, and Simulate after-state."""
+    horizon = profile.get("horizon_months", 60)
+
+    # Hero metric
+    final_nw = projections["net_worth"][-1] if projections["net_worth"] else 0
+    debt_free = projections.get("debt_free_month")
+    goals = profile.get("goals", [])
+    on_track = sum(1 for g in goals if allocation.get("goals", {}).get(g["name"], 0) >= (g["amount"] / max(g["deadline_months"], 1)) * 0.8)
+
+    sub_metrics = []
+    if debt_free:
+        sub_metrics.append((f"Month {debt_free}", "debt-free"))
+    else:
+        sub_metrics.append(("Not within horizon", "debt-free"))
+    sub_metrics.append((f"{on_track}/{len(goals)}", "goals on track"))
+
+    hero_metric_card(f"₹{final_nw:,.0f}", f"Projected Net Worth at Month {horizon}", sub_metrics)
+
+    # Summary
+    summary_block(summary)
+
+    # Method badge
+    if method == "optimised":
+        st.markdown(f'<span style="font-family:JetBrains Mono,monospace; font-size:0.75rem; color:{GREEN}; border:1px solid {GREEN}; border-radius:4px; padding:2px 8px;">OPTIMISED (SLSQP)</span>', unsafe_allow_html=True)
+    else:
+        st.markdown(f'<span style="font-family:JetBrains Mono,monospace; font-size:0.75rem; color:{AMBER}; border:1px solid {AMBER}; border-radius:4px; padding:2px 8px;">FALLBACK (WATERFALL)</span>', unsafe_allow_html=True)
+
+    st.markdown("")
+
+    # Two columns
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.markdown("#### This Month's Allocation")
+        allocation_stacked_bar(allocation)
+
+        st.markdown("#### Key Numbers")
+        disposable = profile["income_monthly"] - profile["expenses_monthly"]
+        st.markdown(f"""
+        | | |
+        |---|---|
+        | **Disposable Income** | ₹{disposable:,.0f} |
+        | **Emergency Fund** | ₹{allocation['emergency_fund']:,.0f} |
+        | **Debt Payment** | ₹{allocation['debt_payment']:,.0f} |
+        | **Savings** | ₹{allocation['savings']:,.0f} |
+        | **Investments** | ₹{allocation['investments']:,.0f} |
+        """)
+
+    with col2:
+        st.markdown("#### Net Worth & Debt Over Time")
+        fig = combined_net_worth_chart(projections)
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Goal progress
+    if goals:
+        st.markdown("#### Goal Progress")
+        goal_progress_bars(goals, allocation, horizon)
+
+    # Recommendations
+    recs = generate_recommendations(profile, allocation)
+    if recs:
+        st.markdown("#### Recommendations")
+        for rec in recs:
+            st.markdown(f"- {rec}")
+
+
+def generate_recommendations(profile, allocation):
+    """Generate actionable recommendations."""
+    recs = []
+    ef_target = profile.get("emergency_fund_target", 0)
+    ef_current = profile.get("emergency_fund_current", 0)
+    if ef_current < ef_target:
+        recs.append(f"Emergency fund is ₹{ef_target - ef_current:,.0f} short of target.")
+
+    for d in profile.get("liabilities", []):
+        if d["interest_rate"] > 0.15:
+            recs.append(f"{d['name']} at {d['interest_rate']*100:.1f}% — prioritise paying this off.")
+
+    for g in profile.get("goals", []):
+        monthly_needed = g["amount"] / max(g["deadline_months"], 1)
+        goal_alloc = allocation.get("goals", {}).get(g["name"], 0)
+        if monthly_needed > 0 and goal_alloc < monthly_needed * 0.8:
+            recs.append(f"{g['name']} needs ₹{monthly_needed:,.0f}/month but allocated ₹{goal_alloc:,.0f}.")
+
+    if not recs:
+        recs.append("Your plan looks well-balanced.")
+
+    return recs
