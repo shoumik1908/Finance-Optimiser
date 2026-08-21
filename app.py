@@ -354,7 +354,7 @@ debts = []
 for i in range(num_debts):
     col1, col2, col3 = st.columns(3)
     with col1:
-        d_name = st.text_input(f"Debt {i+1} Name", value=f"Debt {i+1}", key=f"dname{i}")
+        d_name = st.text_input(f"Debt {i+1} Name", value=f"Debt {i+1}", key=f"dname{i}").strip()[:50]
     with col2:
         d_balance = st.number_input(f"Balance (₹)", 0, 10000000, 50000, key=f"dbal{i}")
     with col3:
@@ -371,7 +371,7 @@ goals = []
 for i in range(num_goals):
     col1, col2, col3 = st.columns(3)
     with col1:
-        g_name = st.text_input(f"Goal {i+1} Name", value=f"Goal {i+1}", key=f"gname{i}")
+        g_name = st.text_input(f"Goal {i+1} Name", value=f"Goal {i+1}", key=f"gname{i}").strip()[:50]
     with col2:
         g_amount = st.number_input(f"Target Amount (₹)", 0, 10000000, 500000, key=f"gamt{i}")
     with col3:
@@ -406,6 +406,9 @@ profile = {
 }
 
 if st.button("🚀 Optimise My Finances", type="primary", use_container_width=True):
+
+    if income <= expenses:
+        st.warning("⚠️ Your expenses equal or exceed your income. The optimiser will use fallback mode.")
 
     allocation, method = optimise_finances(profile, horizon)
 
@@ -526,12 +529,12 @@ elif event_type == "expense_change":
 
 elif event_type == "rate_change":
     new_rate = st.number_input("New Interest Rate (%)", 0.0, 50.0, 18.0)
-    target_debt = st.text_input("Which debt?", value=debts[0]["name"] if debts else "")
+    target_debt = st.text_input("Which debt?", value=debts[0]["name"] if debts else "").strip()[:50]
     event_month = st.slider("When does this happen? (month)", 1, horizon, 12)
     events.append({"month": event_month, "type": "rate_change", "target": target_debt, "new_rate": new_rate / 100})
 
 elif event_type == "new_goal":
-    g_name = st.text_input("Goal Name", value="Wedding")
+    g_name = st.text_input("Goal Name", value="Wedding").strip()[:50]
     g_amount = st.number_input("Amount (₹)", 0, 10000000, 300000)
     g_deadline = st.number_input("Deadline (months from now)", 1, 120, 12)
     event_month = st.slider("When does this happen? (month)", 1, horizon, 6)
@@ -612,6 +615,19 @@ json_input = st.text_area("Paste JSON profile:", value=sample_json, height=300)
 if st.button("🧪 Test with Unseen Scenario", type="secondary", use_container_width=True):
     try:
         test_profile = json.loads(json_input)
+
+        # Input validation — clamp extreme values
+        test_profile["income_monthly"] = max(0, min(test_profile.get("income_monthly", 0), 10000000))
+        test_profile["expenses_monthly"] = max(0, min(test_profile.get("expenses_monthly", 0), 10000000))
+        test_profile["horizon_months"] = max(1, min(test_profile.get("horizon_months", 60), 120))
+        for d in test_profile.get("liabilities", []):
+            d["balance"] = max(0, min(d.get("balance", 0), 10000000))
+            d["interest_rate"] = max(0, min(d.get("interest_rate", 0), 1.0))
+            d["min_payment"] = max(0, min(d.get("min_payment", 0), 1000000))
+        for g in test_profile.get("goals", []):
+            g["amount"] = max(0, min(g.get("amount", 0), 100000000))
+            g["deadline_months"] = max(1, min(g.get("deadline_months", 12), 120))
+
         test_alloc, test_method = optimise_finances(test_profile, test_profile.get("horizon_months", 60))
 
         st.success(f"✅ Optimiser returned result using: {test_method}")
@@ -624,12 +640,13 @@ if st.button("🧪 Test with Unseen Scenario", type="secondary", use_container_w
         fig_test.update_layout(title="Unseen Scenario Projection", height=350)
         st.plotly_chart(fig_test, use_container_width=True)
 
-    except json.JSONDecodeError as e:
-        st.error(f"Invalid JSON: {e}")
-    except Exception as e:
-        st.error(f"Error: {e}")
+    except json.JSONDecodeError:
+        st.error("Invalid JSON format. Please check your input.")
+    except Exception:
+        st.error("Something went wrong. Please check your inputs and try again.")
 
 # Footer
 st.divider()
 st.markdown("---")
 st.markdown("**Built for Recurz Hackathon 2026 | Fintech PS2 | Personal Finance Optimiser**")
+st.markdown("🔒 All data is processed in-session and is not stored or transmitted to any third party.")
