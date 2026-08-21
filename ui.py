@@ -1,29 +1,30 @@
 """
-Shared UI components for the Personal Finance Optimiser multipage app.
+Shared UI components — White + Purple theme.
 """
 import streamlit as st
 import plotly.graph_objects as go
 
 # Colors
-AMBER = "#D4A24C"
-SLATE = "#3E5C76"
-BG = "#0B0F14"
-SURFACE = "#131820"
-TEXT = "#E8E8E8"
-TEXT_DIM = "#8899AA"
-GREEN = "#4CAF50"
-RED = "#E57373"
+PURPLE = "#6C4CE0"
+PURPLE_LIGHT = "#7B5CF0"
+PURPLE_BG = "#F3EEFF"
+NAVY = "#1A1A2E"
+NAVY_DARK = "#14141F"
+BG = "#FAFAFA"
+CARD = "#FFFFFF"
+TEXT = "#1A1A2E"
+TEXT_SEC = "#6B7280"
+TEAL = "#0EA5E9"
+GREEN = "#10B981"
+AMBER = "#F59E0B"
+RED = "#EF4444"
 
 
 def inject_css():
-    """Inject custom CSS for the dark amber/gold theme."""
+    """Inject custom CSS for the white + purple theme."""
     st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
-
-    .stApp {{
-        background-color: {BG};
-    }}
 
     /* Monospace for numbers */
     .mono, [data-testid="stMetricValue"] {{
@@ -33,27 +34,27 @@ def inject_css():
     /* Hero metric */
     .hero-metric {{
         font-family: 'JetBrains Mono', monospace;
-        font-size: 3.5rem;
+        font-size: 3.2rem;
         font-weight: 700;
-        color: {AMBER};
+        color: {PURPLE};
         line-height: 1.1;
         margin: 0;
     }}
     .hero-label {{
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
-        color: {TEXT_DIM};
+        color: {TEXT_SEC};
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
         margin-top: 4px;
     }}
 
     /* Summary block */
     .summary-block {{
-        border: 1px solid {SLATE};
-        border-radius: 8px;
+        border: 1px solid {PURPLE_BG};
+        border-radius: 12px;
         padding: 20px 24px;
-        background: {SURFACE};
+        background: {PURPLE_BG};
         margin: 16px 0;
     }}
     .summary-block p {{
@@ -69,12 +70,12 @@ def inject_css():
         display: flex;
         align-items: center;
         gap: 12px;
-        margin: 8px 0;
+        margin: 10px 0;
     }}
     .goal-bar-bg {{
         flex: 1;
         height: 8px;
-        background: {SURFACE};
+        background: #E5E7EB;
         border-radius: 4px;
         overflow: hidden;
     }}
@@ -88,21 +89,23 @@ def inject_css():
         font-size: 0.85rem;
         color: {TEXT};
         min-width: 120px;
+        font-weight: 500;
     }}
     .goal-status {{
         font-family: 'Inter', sans-serif;
         font-size: 0.8rem;
-        color: {TEXT_DIM};
-        min-width: 180px;
+        color: {TEXT_SEC};
+        min-width: 200px;
     }}
 
     /* Allocation bar */
     .alloc-bar {{
         display: flex;
-        height: 40px;
-        border-radius: 6px;
+        height: 44px;
+        border-radius: 8px;
         overflow: hidden;
         margin: 12px 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }}
     .alloc-segment {{
         display: flex;
@@ -110,49 +113,31 @@ def inject_css():
         justify-content: center;
         font-family: 'JetBrains Mono', monospace;
         font-size: 0.7rem;
-        color: {BG};
+        color: white;
         font-weight: 700;
         min-width: 30px;
     }}
 
-    /* Nav styling */
-    .nav-link {{
-        font-family: 'Inter', sans-serif;
-        font-size: 0.9rem;
-        color: {TEXT_DIM};
-        text-decoration: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: all 0.2s;
-    }}
-    .nav-link:hover {{
-        color: {AMBER};
-        background: {SURFACE};
-    }}
-
-    /* Section headers */
-    h1, h2, h3 {{
-        font-family: 'Inter', sans-serif !important;
-    }}
-
-    /* Override Streamlit metric styling */
+    /* Metric cards */
     [data-testid="stMetric"] {{
-        background: {SURFACE};
-        border: 1px solid rgba(62, 92, 118, 0.3);
-        border-radius: 8px;
+        background: {CARD};
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
         padding: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }}
     [data-testid="stMetricValue"] {{
-        color: {AMBER} !important;
+        color: {PURPLE} !important;
     }}
     [data-testid="stMetricLabel"] {{
-        color: {TEXT_DIM} !important;
+        color: {TEXT_SEC} !important;
     }}
 
-    /* Button styling */
+    /* Buttons */
     .stButton > button {{
         font-family: 'Inter', sans-serif;
         font-weight: 600;
+        border-radius: 8px;
     }}
 
     /* Wizard step indicator */
@@ -165,13 +150,42 @@ def inject_css():
         width: 32px;
         height: 4px;
         border-radius: 2px;
-        background: {SURFACE};
+        background: #E5E7EB;
     }}
     .step-dot.active {{
-        background: {AMBER};
+        background: {PURPLE};
     }}
     .step-dot.done {{
-        background: {SLATE};
+        background: #C4B5FD;
+    }}
+
+    /* Cards with subtle shadow */
+    .card {{
+        background: {CARD};
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }}
+
+    /* Chat bubbles */
+    .chat-user {{
+        background: {PURPLE};
+        color: white;
+        padding: 10px 16px;
+        border-radius: 12px 12px 0 12px;
+        max-width: 70%;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+    }}
+    .chat-ai {{
+        background: {PURPLE_BG};
+        color: {TEXT};
+        padding: 10px 16px;
+        border-radius: 12px 12px 12px 0;
+        max-width: 70%;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -182,7 +196,7 @@ def hero_metric_card(value, label, sub_metrics=None):
     html = f'<p class="hero-metric">{value}</p><p class="hero-label">{label}</p>'
     if sub_metrics:
         for sv, sl in sub_metrics:
-            html += f'<p style="font-family: JetBrains Mono, monospace; font-size: 1rem; color: {TEXT_DIM}; margin-top: 8px;"><span style="color: {TEXT};">{sv}</span> {sl}</p>'
+            html += f'<p style="font-family: JetBrains Mono, monospace; font-size: 1rem; color: {TEXT_SEC}; margin-top: 8px;"><span style="color: {TEXT};">{sv}</span> {sl}</p>'
     st.markdown(html, unsafe_allow_html=True)
 
 
@@ -195,12 +209,12 @@ def allocation_stacked_bar(allocation):
     """Render a horizontal stacked bar for allocation."""
     categories = [
         ("Emergency Fund", allocation.get("emergency_fund", 0), AMBER),
-        ("Debt Payment", allocation.get("debt_payment", 0), SLATE),
-        ("Savings", allocation.get("savings", 0), "#5B8C5A"),
-        ("Investments", allocation.get("investments", 0), AMBER),
+        ("Debt Payment", allocation.get("debt_payment", 0), TEAL),
+        ("Savings", allocation.get("savings", 0), GREEN),
+        ("Investments", allocation.get("investments", 0), PURPLE),
     ]
     for gname, gval in allocation.get("goals", {}).items():
-        categories.append((f"Goal: {gname}", gval, "#7E57C2"))
+        categories.append((f"Goal: {gname}", gval, "#8B5CF6"))
 
     total = max(1, sum(v for _, v, _ in categories))
     html = '<div class="alloc-bar">'
@@ -213,39 +227,38 @@ def allocation_stacked_bar(allocation):
     # Legend
     html += '<div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">'
     for name, val, color in categories:
-        html += f'<span style="font-family:Inter,sans-serif; font-size:0.75rem; color:{TEXT_DIM};"><span style="display:inline-block; width:10px; height:10px; background:{color}; border-radius:2px; margin-right:4px;"></span>{name}: ₹{val:,.0f}</span>'
+        html += f'<span style="font-family:Inter,sans-serif; font-size:0.75rem; color:{TEXT_SEC};"><span style="display:inline-block; width:10px; height:10px; background:{color}; border-radius:3px; margin-right:4px;"></span>{name}: ₹{val:,.0f}</span>'
     html += '</div>'
 
     st.markdown(html, unsafe_allow_html=True)
 
 
-def combined_net_worth_chart(projections, amber=AMBER, slate=SLATE):
+def combined_net_worth_chart(projections):
     """Combined net worth + debt chart on same axis."""
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=projections["months"], y=projections["net_worth"],
         name="Net Worth", fill="tozeroy",
-        line=dict(color=amber, width=2),
-        fillcolor="rgba(212, 162, 76, 0.1)"
+        line=dict(color=PURPLE, width=2),
+        fillcolor="rgba(108, 76, 224, 0.08)"
     ))
     fig.add_trace(go.Scatter(
         x=projections["months"], y=projections["debt_remaining"],
         name="Debt Remaining",
-        line=dict(color=slate, width=2)
+        line=dict(color=TEAL, width=2)
     ))
-    # Mark debt-free point
     if projections.get("debt_free_month"):
         fig.add_vline(x=projections["debt_free_month"], line_dash="dot",
-                      line_color="#4CAF50", annotation_text="Debt-free",
-                      annotation_font_color="#4CAF50")
+                      line_color=GREEN, annotation_text="Debt-free",
+                      annotation_font_color=GREEN)
 
     fig.update_layout(
         height=350,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Inter, sans-serif", color=TEXT_DIM),
-        xaxis=dict(gridcolor="rgba(62,92,118,0.15)", title="Months"),
-        yaxis=dict(gridcolor="rgba(62,92,118,0.15)", title="Amount (₹)"),
+        font=dict(family="Inter, sans-serif", color=TEXT_SEC),
+        xaxis=dict(gridcolor="rgba(0,0,0,0.06)", title="Months"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.06)", title="Amount (₹)"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         margin=dict(l=40, r=20, t=40, b=40),
     )
@@ -281,10 +294,9 @@ def goal_progress_bars(goals, allocation, horizon):
 
 
 def plan_report(profile, allocation, method, projections, summary):
-    """Render the full plan report. Used on Plan page, Scenario Lab, and Simulate after-state."""
+    """Render the full plan report."""
     horizon = profile.get("horizon_months", 60)
 
-    # Hero metric
     final_nw = projections["net_worth"][-1] if projections["net_worth"] else 0
     debt_free = projections.get("debt_free_month")
     goals = profile.get("goals", [])
@@ -299,18 +311,15 @@ def plan_report(profile, allocation, method, projections, summary):
 
     hero_metric_card(f"₹{final_nw:,.0f}", f"Projected Net Worth at Month {horizon}", sub_metrics)
 
-    # Summary
     summary_block(summary)
 
-    # Method badge
     if method == "optimised":
-        st.markdown(f'<span style="font-family:JetBrains Mono,monospace; font-size:0.75rem; color:{GREEN}; border:1px solid {GREEN}; border-radius:4px; padding:2px 8px;">OPTIMISED (SLSQP)</span>', unsafe_allow_html=True)
+        st.markdown(f'<span style="font-family:JetBrains Mono,monospace; font-size:0.75rem; color:{GREEN}; background:{GREEN}11; border-radius:6px; padding:4px 10px;">OPTIMISED (SLSQP)</span>', unsafe_allow_html=True)
     else:
-        st.markdown(f'<span style="font-family:JetBrains Mono,monospace; font-size:0.75rem; color:{AMBER}; border:1px solid {AMBER}; border-radius:4px; padding:2px 8px;">FALLBACK (WATERFALL)</span>', unsafe_allow_html=True)
+        st.markdown(f'<span style="font-family:JetBrains Mono,monospace; font-size:0.75rem; color:{AMBER}; background:{AMBER}11; border-radius:6px; padding:4px 10px;">FALLBACK (WATERFALL)</span>', unsafe_allow_html=True)
 
     st.markdown("")
 
-    # Two columns
     col1, col2 = st.columns([1, 1])
 
     with col1:
@@ -334,12 +343,10 @@ def plan_report(profile, allocation, method, projections, summary):
         fig = combined_net_worth_chart(projections)
         st.plotly_chart(fig, use_container_width=True)
 
-    # Goal progress
     if goals:
         st.markdown("#### Goal Progress")
         goal_progress_bars(goals, allocation, horizon)
 
-    # Recommendations
     recs = generate_recommendations(profile, allocation)
     if recs:
         st.markdown("#### Recommendations")

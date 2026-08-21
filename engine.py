@@ -317,3 +317,74 @@ DEFAULT_PROFILE = {
     "risk_tolerance": "moderate",
     "horizon_months": 60,
 }
+
+PRESET_PROFILES = {
+    "young_pro": {
+        "name": "Young Professional",
+        "description": "Tech starter with education loan and early wealth goals",
+        "icon": "🚀",
+        "income_monthly": 75000,
+        "expenses_monthly": 28000,
+        "assets": [
+            {"type": "savings", "amount": 80000, "return_rate": 0.045},
+            {"type": "mutual_fund", "amount": 150000, "return_rate": 0.12}
+        ],
+        "liabilities": [
+            {"name": "Education Loan", "balance": 180000, "interest_rate": 0.095, "min_payment": 4500},
+            {"name": "Credit Card", "balance": 25000, "interest_rate": 0.36, "min_payment": 2000}
+        ],
+        "goals": [
+            {"name": "Emergency Cushion", "amount": 150000, "deadline_months": 18},
+            {"name": "Tech & Travel Fund", "amount": 200000, "deadline_months": 24}
+        ],
+        "emergency_fund_current": 60000,
+        "emergency_fund_target": 168000,
+        "risk_tolerance": "moderate",
+        "horizon_months": 48,
+    },
+    "family_builder": {
+        "name": "Mid-Career Family",
+        "description": "Balancing home mortgage, child education, and equity growth",
+        "icon": "🏡",
+        "income_monthly": 150000,
+        "expenses_monthly": 65000,
+        "assets": [
+            {"type": "savings", "amount": 250000, "return_rate": 0.05},
+            {"type": "mutual_fund", "amount": 900000, "return_rate": 0.13},
+            {"type": "fd", "amount": 400000, "return_rate": 0.07}
+        ],
+        "liabilities": [
+            {"name": "Home Loan", "balance": 2200000, "interest_rate": 0.084, "min_payment": 24000},
+            {"name": "Car Loan", "balance": 250000, "interest_rate": 0.089, "min_payment": 7000}
+        ],
+        "goals": [
+            {"name": "Child Higher Education", "amount": 1800000, "deadline_months": 60},
+            {"name": "Family Vacation", "amount": 250000, "deadline_months": 12}
+        ],
+        "emergency_fund_current": 250000,
+        "emergency_fund_target": 390000,
+        "risk_tolerance": "moderate",
+        "horizon_months": 60,
+    },
+    "fire_seeker": {
+        "name": "Debt-Free FIRE Seeker",
+        "description": "Aggressive investing focused on early financial freedom",
+        "icon": "🔥",
+        "income_monthly": 200000,
+        "expenses_monthly": 50000,
+        "assets": [
+            {"type": "stocks", "amount": 2200000, "return_rate": 0.14},
+            {"type": "mutual_fund", "amount": 1400000, "return_rate": 0.12},
+            {"type": "savings", "amount": 300000, "return_rate": 0.06}
+        ],
+        "liabilities": [],
+        "goals": [
+            {"name": "FIRE Retirement Corpus", "amount": 6000000, "deadline_months": 60}
+        ],
+        "emergency_fund_current": 300000,
+        "emergency_fund_target": 300000,
+        "risk_tolerance": "aggressive",
+        "horizon_months": 60,
+    }
+}
+
