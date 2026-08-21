@@ -65,19 +65,14 @@ The app will open at `http://localhost:8501`
 
 ---
 
+## 🌐 Live Demo
+
+**https://finance-optimiser.streamlit.app/**
+
 ## 📸 Screenshots
 
 ### Dashboard Input
 ![Input Form](screenshots/dashboard_input.png)
-
-### Allocation Breakdown
-![Allocation Chart](screenshots/allocation_chart.png)
-
-### Net Worth Projection
-![Projection](screenshots/net_worth_projection.png)
-
-### Dynamic Reassessment
-![Reassessment](screenshots/dynamic_reassessment.png)
 
 ---
 
