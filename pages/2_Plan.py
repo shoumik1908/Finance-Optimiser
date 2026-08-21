@@ -1,9 +1,10 @@
 """
-Plan — Your financial plan dashboard (report style).
+Plan — Your financial plan dashboard (report style) with AI recommendations.
 """
 import streamlit as st
 from engine import optimise_finances, project_finances, generate_summary
-from ui import inject_css, plan_report, AMBER, TEXT, TEXT_DIM, BG, SURFACE
+from ai_advisor import get_ai_recommendations, get_chat_response
+from ui import inject_css, plan_report, AMBER, TEXT, TEXT_DIM, BG, SURFACE, SLATE
 
 st.set_page_config(page_title="Your Plan — Finance Optimiser", page_icon="📊", layout="wide")
 inject_css()
@@ -50,3 +51,72 @@ else:
     st.markdown(f'<p style="color:{TEXT_DIM}; font-size:0.9rem; margin-bottom:24px;">Based on your profile • {profile["horizon_months"]}-month horizon • {profile["risk_tolerance"]} risk</p>', unsafe_allow_html=True)
 
     plan_report(profile, allocation, method, projections, summary)
+
+    # AI Recommendations Section
+    st.markdown("---")
+    st.markdown(f'<h3 style="color:{AMBER};">🤖 AI Financial Advisor</h3>', unsafe_allow_html=True)
+
+    # Generate AI recommendations
+    if "ai_recommendations" not in st.session_state:
+        with st.spinner("AI is analyzing your financial profile..."):
+            ai_recs = get_ai_recommendations(profile, allocation, projections, summary)
+            if ai_recs:
+                st.session_state.ai_recommendations = ai_recs
+            else:
+                st.session_state.ai_recommendations = None
+
+    if st.session_state.get("ai_recommendations"):
+        st.markdown(f"""
+        <div style="border:1px solid {AMBER}; border-radius:8px; padding:20px; background:rgba(212,162,76,0.05); margin:16px 0;">
+            <p style="font-family:Inter,sans-serif; font-size:0.95rem; color:{TEXT}; line-height:1.7; white-space:pre-line;">{st.session_state.ai_recommendations}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.info("AI recommendations unavailable. The optimiser's built-in recommendations are shown above.")
+
+    # Chat with AI
+    st.markdown("---")
+    st.markdown(f'<h3 style="color:{TEXT};">💬 Ask the AI Advisor</h3>', unsafe_allow_html=True)
+    st.markdown(f'<p style="color:{TEXT_DIM}; font-size:0.85rem; margin-bottom:16px;">Ask questions about your financial plan, investment strategy, or debt management.</p>', unsafe_allow_html=True)
+
+    # Chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Display chat history
+    for msg in st.session_state.chat_history:
+        if msg["role"] == "user":
+            st.markdown(f"""
+            <div style="display:flex; justify-content:flex-end; margin:8px 0;">
+                <div style="background:{AMBER}; color:{BG}; padding:10px 16px; border-radius:12px 12px 0 12px; max-width:70%; font-family:Inter,sans-serif; font-size:0.9rem;">
+                    {msg["content"]}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div style="display:flex; justify-content:flex-start; margin:8px 0;">
+                <div style="background:{SURFACE}; border:1px solid rgba(62,92,118,0.3); color:{TEXT}; padding:10px 16px; border-radius:12px 12px 12px 0; max-width:70%; font-family:Inter,sans-serif; font-size:0.9rem;">
+                    {msg["content"]}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Chat input
+    user_input = st.chat_input("Ask about your financial plan...")
+    if user_input:
+        # Add user message to history
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+
+        # Get AI response
+        with st.spinner("Thinking..."):
+            response = get_chat_response(user_input, profile, allocation)
+            st.session_state.chat_history.append({"role": "assistant", "content": response})
+
+        st.rerun()
+
+    # Clear chat button
+    if st.session_state.chat_history:
+        if st.button("Clear Chat"):
+            st.session_state.chat_history = []
+            st.rerun()
