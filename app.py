@@ -1,92 +1,173 @@
 """
-Personal Finance Optimiser — Home Page (White + Purple)
+Landing Page — Personal Finance Optimiser (Violet/Navy design)
 """
 import streamlit as st
-from ui import inject_css, PURPLE, PURPLE_BG, TEXT, TEXT_SEC, CARD
+from engine import optimise_finances, project_finances, generate_summary, PRESET_PROFILES
+from ui import (inject_css, top_nav, page_hero, section_header, stat_card,
+                page_footer, PURPLE, PURPLE_BG, TEXT, TEXT_MUTED,
+                CARD, BORDER_LIGHT, GREEN, AMBER, TEAL, SHADOW_SM)
 
-st.set_page_config(page_title="Personal Finance Optimiser", page_icon="💰", layout="wide")
+st.set_page_config(page_title="Finance Optimiser", page_icon="⚡", layout="wide")
 inject_css()
 
-st.markdown("""
-<style>
-[data-testid="stSidebarNav"] {display: none;}
-section[data-testid="stSidebar"] {display: none;}
-</style>
-""", unsafe_allow_html=True)
+# ── Deferred redirect (must run BEFORE any rendering) ─────────────────
+# Streamlit re-runs the whole script on every interaction.
+# We store the intent in session_state on button click, then act on it
+# at the very top of the next run — before st.switch_page is buried
+# inside a column or conditional block.
+_pending = st.session_state.pop("_load_preset", None)
+if _pending:
+    p = PRESET_PROFILES[_pending]
+    with st.spinner(f"Loading {p.get('name', _pending)}..."):
+        alloc, method = optimise_finances(p, p["horizon_months"])
+        proj          = project_finances(p, alloc, p["horizon_months"])
+        summ          = generate_summary(p, alloc, proj)
+    st.session_state.profile    = p
+    st.session_state.allocation = alloc
+    st.session_state.method     = method
+    st.session_state.projections = proj
+    st.session_state.summary    = summ
+    st.session_state.pop("ai_recommendations", None)
+    st.session_state.pop("chat_history", None)
+    st.switch_page("pages/2_Plan.py")
 
-# Nav — compact, no overflow
+if st.session_state.pop("_go_profile", False):
+    st.switch_page("pages/1_Profile.py")
+
+# ── Nav ───────────────────────────────────────────────────────────────
+top_nav("Home")
+
+# ── Hero ─────────────────────────────────────────────────────────────
+page_hero(
+    badge="Mathematical · AI-Powered · Real-Time",
+    title="Optimise Every Rupee.<br>Own Your Financial Future.",
+    subtitle="Harness deterministic SLSQP optimisation and Groq AI to build a personalised plan "
+             "that balances emergency reserves, debt payoff, wealth goals, and compound growth."
+)
+
+st.markdown("<div style='height:40px;'></div>", unsafe_allow_html=True)
+
+# ── Primary CTA ───────────────────────────────────────────────────────
 st.markdown(f"""
-<div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid #E5E7EB; background:{CARD}; margin:-1rem -1rem 32px -1rem; padding:16px 48px; position:sticky; top:0; z-index:999;">
-    <span style="font-family:'JetBrains Mono',monospace; font-size:1.1rem; color:{PURPLE}; font-weight:700;">💰 Finance Optimiser</span>
-    <div style="display:flex; gap:4px; flex-wrap:wrap;">
-        <a href="/" target="_self" style="font-family:Inter,sans-serif; font-size:0.8rem; color:white; text-decoration:none; padding:6px 12px; border-radius:6px; background:{PURPLE}; font-weight:600;">Home</a>
-        <a href="/Profile" target="_self" style="font-family:Inter,sans-serif; font-size:0.8rem; color:{TEXT_SEC}; text-decoration:none; padding:6px 12px; border-radius:6px;">Profile</a>
-        <a href="/Plan" target="_self" style="font-family:Inter,sans-serif; font-size:0.8rem; color:{TEXT_SEC}; text-decoration:none; padding:6px 12px; border-radius:6px;">Plan</a>
-        <a href="/Simulate" target="_self" style="font-family:Inter,sans-serif; font-size:0.8rem; color:{TEXT_SEC}; text-decoration:none; padding:6px 12px; border-radius:6px;">Simulate</a>
-        <a href="/Scenario_Lab" target="_self" style="font-family:Inter,sans-serif; font-size:0.8rem; color:{TEXT_SEC}; text-decoration:none; padding:6px 12px; border-radius:6px;">Lab</a>
-        <a href="/How_It_Works" target="_self" style="font-family:Inter,sans-serif; font-size:0.8rem; color:{TEXT_SEC}; text-decoration:none; padding:6px 12px; border-radius:6px;">About</a>
-    </div>
+<div style="text-align:center; padding:0 24px 24px;">
+    <p style="font-size:0.85rem; font-weight:600; color:{TEXT_MUTED}; text-transform:uppercase;
+       letter-spacing:0.06em; margin:0 0 20px;">Start in 3 steps: Profile → Optimise → Simulate</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Hero
+_, cta_col, _ = st.columns([1, 1.4, 1])
+with cta_col:
+    if st.button("✨  Build Your Financial Profile  →",
+                 use_container_width=True, type="primary", key="cta_profile"):
+        st.session_state["_go_profile"] = True
+        st.rerun()
+
+# ── Divider ───────────────────────────────────────────────────────────
 st.markdown(f"""
-<div style="text-align:center; padding:20px 0 20px;">
-    <h1 style="font-family:'JetBrains Mono',monospace; font-size:2.8rem; color:{PURPLE}; margin-bottom:12px;">💰 Personal Finance Optimiser</h1>
-    <p style="font-family:Inter,sans-serif; font-size:1.15rem; color:{TEXT}; max-width:600px; margin:0 auto 8px; line-height:1.5;">
-        Optimise your money across savings, investments, debt, and goals — and see your plan adapt when life changes.
-    </p>
-    <p style="font-family:Inter,sans-serif; font-size:0.85rem; color:{TEXT_SEC}; max-width:500px; margin:0 auto 32px;">
-        Built for Recurz Hackathon 2026 · Fintech PS2 · Mathematical Optimisation
-    </p>
+<div style="display:flex; align-items:center; gap:16px; margin:16px 48px 40px;">
+    <div style="flex:1; height:1px; background:{BORDER_LIGHT};"></div>
+    <span style="font-size:0.78rem; font-weight:600; color:{TEXT_MUTED}; text-transform:uppercase;
+          letter-spacing:0.08em; white-space:nowrap;">Or try an instant archetype</span>
+    <div style="flex:1; height:1px; background:{BORDER_LIGHT};"></div>
 </div>
 """, unsafe_allow_html=True)
 
-# CTA
-col1, col2, col3 = st.columns([1, 1, 1])
-with col2:
+# ── Archetype Cards ───────────────────────────────────────────────────
+def _preset_card(p: dict, income_label: str, debt_label: str, badge_color: str):
     st.markdown(f"""
-    <a href="/Profile" target="_self" style="display:block; text-align:center; padding:14px 28px; background:{PURPLE}; color:white; font-family:Inter,sans-serif; font-weight:700; font-size:1.05rem; border-radius:10px; text-decoration:none; box-shadow:0 2px 8px rgba(108,76,224,0.3);">
-        Build Your Plan →
-    </a>
-    """, unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Features
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown(f"""
-    <div style="background:{CARD}; border:1px solid #E5E7EB; border-radius:12px; padding:24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <div style="font-size:2rem; margin-bottom:8px;">🧮</div>
-        <h3 style="color:{TEXT}; font-size:1rem; font-family:Inter,sans-serif;">Mathematical Optimisation</h3>
-        <p style="color:{TEXT_SEC}; font-size:0.85rem; font-family:Inter,sans-serif;">LP/QP solver maximises financial well-being, not just wealth.</p>
+    <div style="background:{CARD}; border:1px solid {BORDER_LIGHT}; border-radius:16px;
+                padding:24px; box-shadow:{SHADOW_SM}; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <span style="font-size:2rem; line-height:1;">{p.get('icon', '💡')}</span>
+            <span style="background:{badge_color}18; color:{badge_color}; border:1px solid {badge_color}33;
+                         border-radius:9999px; padding:3px 10px; font-size:0.72rem; font-weight:700;
+                         letter-spacing:0.04em; text-transform:uppercase;">{income_label}</span>
+        </div>
+        <p style="font-size:1.05rem; font-weight:700; color:{TEXT} !important; margin:0 0 6px;">
+            {p.get('name', 'Profile')}
+        </p>
+        <p style="font-size:0.82rem; color:{TEXT_MUTED} !important; line-height:1.45; margin:0 0 14px;">
+            {p.get('description', '')}
+        </p>
+        <div style="border-top:1px solid {BORDER_LIGHT}; padding-top:10px;">
+            <span style="font-size:0.75rem; color:{TEXT_MUTED} !important;">
+                <span style="font-weight:700; color:{TEXT} !important; font-family:'JetBrains Mono',monospace;">
+                    ₹{p['income_monthly']//1000}k
+                </span> / mo income · {debt_label}
+            </span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-with col2:
-    st.markdown(f"""
-    <div style="background:{CARD}; border:1px solid #E5E7EB; border-radius:12px; padding:24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <div style="font-size:2rem; margin-bottom:8px;">🔄</div>
-        <h3 style="color:{TEXT}; font-size:1rem; font-family:Inter,sans-serif;">Dynamic Re-planning</h3>
-        <p style="color:{TEXT_SEC}; font-size:0.85rem; font-family:Inter,sans-serif;">Simulate life events and watch your plan adapt in real time.</p>
-    </div>
-    """, unsafe_allow_html=True)
 
-with col3:
-    st.markdown(f"""
-    <div style="background:{CARD}; border:1px solid #E5E7EB; border-radius:12px; padding:24px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <div style="font-size:2rem; margin-bottom:8px;">📊</div>
-        <h3 style="color:{TEXT}; font-size:1rem; font-family:Inter,sans-serif;">AI-Powered Insights</h3>
-        <p style="color:{TEXT_SEC}; font-size:0.85rem; font-family:Inter,sans-serif;">Groq AI analyzes your profile and gives personalised advice.</p>
-    </div>
-    """, unsafe_allow_html=True)
+ARCHETYPES = [
+    ("young_pro",      "₹75k / mo",  "2 active debts", PURPLE, "home_p1"),
+    ("family_builder", "₹1.5L / mo", "Home + Car loan", TEAL,  "home_p2"),
+    ("fire_seeker",    "₹2L / mo",   "Debt-free",       GREEN, "home_p3"),
+]
 
-# Footer
-st.markdown(f"""
-<div style="text-align:center; padding:40px 0 20px; border-top:1px solid #E5E7EB; margin-top:40px;">
-    <p style="font-family:Inter,sans-serif; font-size:0.8rem; color:{TEXT_SEC};">
-        🔒 All data is processed in-session and is not stored or transmitted to any third party.
-    </p>
-</div>
-""", unsafe_allow_html=True)
+pc1, pc2, pc3 = st.columns(3, gap="large")
+for col, (preset_key, income_lbl, debt_lbl, badge_col, btn_key) in zip([pc1, pc2, pc3], ARCHETYPES):
+    with col:
+        p = PRESET_PROFILES[preset_key]
+        _preset_card(p, income_lbl, debt_lbl, badge_col)
+        if st.button(
+            f"Load {p.get('name', preset_key)} →",
+            key=btn_key,
+            use_container_width=True,
+        ):
+            # Store intent and rerun — switch happens at the top of next run
+            st.session_state["_load_preset"] = preset_key
+            st.rerun()
+
+# ── Feature Spotlights ────────────────────────────────────────────────
+st.markdown("<div style='height:48px;'></div>", unsafe_allow_html=True)
+
+section_header(
+    label="Platform Capabilities",
+    title="Everything You Need to Take Control",
+    sub="From mathematical optimisation to AI-powered advice — built for real financial decisions."
+)
+
+f1, f2, f3 = st.columns(3, gap="large")
+features = [
+    ("🧮", PURPLE, PURPLE_BG,
+     "Mathematical Optimisation",
+     "SciPy SLSQP solver maximises a composite well-being index across 4 pillars simultaneously — not just raw wealth."),
+    ("🔄", TEAL, "rgba(6,182,212,0.08)",
+     "Dynamic Life-Event Simulation",
+     "Stress-test income shocks, new EMIs, or rate changes. The engine re-optimises globally from the event month forward."),
+    ("🤖", GREEN, "rgba(16,185,129,0.08)",
+     "Groq AI Financial Advisor",
+     "Contextual, actionable advice powered by LLaMA 3.3 70B — with quick-action prompts and conversational follow-ups."),
+]
+for col, (icon, color, bg, title, desc) in zip([f1, f2, f3], features):
+    with col:
+        st.markdown(f"""
+        <div style="background:{CARD}; border:1px solid {BORDER_LIGHT}; border-radius:16px;
+                    padding:24px; box-shadow:{SHADOW_SM}; min-height:200px;">
+            <div style="width:48px; height:48px; border-radius:13px; background:{bg};
+                        display:flex; align-items:center; justify-content:center;
+                        font-size:1.4rem; margin-bottom:16px; border:1px solid {color}22;">
+                {icon}
+            </div>
+            <p style="font-size:1rem; font-weight:700; color:{TEXT} !important; margin:0 0 8px;">{title}</p>
+            <p style="font-size:0.87rem; color:{TEXT_MUTED} !important; line-height:1.6; margin:0;">{desc}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ── Stats Row ─────────────────────────────────────────────────────────
+st.markdown("<div style='height:48px;'></div>", unsafe_allow_html=True)
+
+s1, s2, s3, s4 = st.columns(4)
+stats = [
+    ("⚡", "< 50ms", "Solve Time",      PURPLE, PURPLE_BG),
+    ("🛡️", "3–6×",  "Emergency Months", TEAL,   "rgba(6,182,212,0.08)"),
+    ("📈", "SLSQP", "Solver Method",    GREEN,  "rgba(16,185,129,0.08)"),
+    ("🤖", "70B",   "AI Model Params",  AMBER,  "rgba(245,158,11,0.08)"),
+]
+for col, (icon, val, lbl, color, bg) in zip([s1, s2, s3, s4], stats):
+    with col:
+        stat_card(icon, val, lbl, color, bg)
+
+page_footer()

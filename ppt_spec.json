@@ -1,0 +1,141 @@
+{
+  "slide_size": "16:9",
+  "slides": [
+    {
+      "layout": "title_only",
+      "background": "14141F",
+      "title": "PERSONAL FINANCE OPTIMISER",
+      "subtitle": "Domain: Fintech | Problem Statement: PS2\nTeam Name: [Your Team Name]\nTeam Leader: Khwaab | Manipal University Jaipur",
+      "notes": "Title slide. Dark navy background (#14141F) matching website hero/nav. Purple accent (#6C4CE0) for title. Introduce team, domain, problem statement."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "THE PROBLEM",
+      "bullets": [
+        "Personal financial planning requires balancing 5 competing priorities:",
+        "  Savings · Investments · Debt Repayment · Emergency Fund · Goals",
+        "Optimising one area hurts another — no way to know the best split",
+        "Life changes (income drop, new expense) break any static plan",
+        {"text": "Most people guess. We solve with mathematical optimisation.", "bold": true, "color": "6C4CE0"}
+      ],
+      "notes": "Light off-white background (#F4F5F9) matching website. Purple title. Explain the 5 competing priorities."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "OUR SOLUTION",
+      "bullets": [
+        "Web app that takes your financial profile and outputs optimal allocation",
+        "LP/QP solver maximises a well-being score, not just wealth",
+        "Dynamic re-planning: re-runs optimiser when life changes",
+        "AI-powered recommendations via Groq (Llama 3.3 70B)",
+        "6-page interactive dashboard with charts and projections",
+        {"text": "Live: finance-optimiser.onrender.com", "bold": true, "color": "6C4CE0"}
+      ],
+      "notes": "Overview of solution. Highlight live deployment URL in purple."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "ALGORITHM: OBJECTIVE FUNCTION",
+      "bullets": [
+        {"text": "Maximise Financial Well-Being Score (not just wealth):", "bold": true, "color": "1A1A2E"},
+        {"text": "20% — Emergency fund progress", "color": "F59E0B"},
+        {"text": "25% — Debt reduction rate", "color": "06B6D4"},
+        {"text": "20% — Investment growth", "color": "6C4CE0"},
+        {"text": "25% — Goal completion", "color": "10B981"},
+        {"text": "Penalty — Underfunded goals, low emergency reserves", "color": "F43F5E"},
+        {"text": "Solver: scipy.optimize.minimize (SLSQP)", "bold": true, "color": "6C4CE0"},
+        "Fallback: Rule-based waterfall method if solver fails"
+      ],
+      "notes": "Use website color tokens for each weight: amber for emergency, teal for debt, purple for investments, green for goals, red for penalties."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "ALGORITHM: CONSTRAINTS",
+      "bullets": [
+        "Budget: sum(allocations) ≤ disposable income",
+        "Minimum debt payments: every debt gets at least its minimum",
+        "Non-negativity: no category can receive negative allocation",
+        "Emergency fund cap: stops adding once target reached",
+        "Goal feasibility: flags impossible deadlines",
+        {"text": "These constraints mirror real financial rules", "bold": true, "color": "6C4CE0"}
+      ],
+      "notes": "Constraints that make the optimisation realistic. Purple highlight on key takeaway."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "DYNAMIC RE-PLANNING",
+      "bullets": [
+        "When life changes, the system doesn't just tweak the old plan",
+        {"text": "It re-runs the ENTIRE optimiser from scratch with updated parameters", "bold": true, "color": "1A1A2E"},
+        "The new plan is globally optimal for the new conditions",
+        "Supported events:",
+        "  Income change · New expense · Rate change · New goal · Emergency expense",
+        {"text": "Original vs Revised plan shown side by side with divergence chart", "color": "6C4CE0"}
+      ],
+      "notes": "Key differentiator. Purple highlight on the comparison feature."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "TECH STACK",
+      "bullets": [
+        {"text": "Python", "bold": true, "color": "6C4CE0"} ,
+        "  Core language",
+        {"text": "Streamlit", "bold": true, "color": "6C4CE0"},
+        "  Multipage web dashboard (6 pages)",
+        {"text": "SciPy (SLSQP)", "bold": true, "color": "6C4CE0"},
+        "  Mathematical optimisation engine",
+        {"text": "Plotly", "bold": true, "color": "6C4CE0"},
+        "  Interactive charts (net worth, debt, goals)",
+        {"text": "Groq (Llama 3.3 70B)", "bold": true, "color": "6C4CE0"},
+        "  AI-powered financial advisor",
+        {"text": "Render", "bold": true, "color": "6C4CE0"},
+        "  Free cloud deployment"
+      ],
+      "notes": "Tech stack with purple bold labels. Match website's tech stack section on How It Works page."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "KEY FEATURES",
+      "bullets": [
+        "5-step profile wizard (income, assets, debts, goals, risk)",
+        "Report-style dashboard with hero metric + allocation bar",
+        "Net worth & debt projection charts over time",
+        "Goal progress bars with on-track/behind status",
+        "Before/after comparison on life event simulation",
+        "AI chat advisor for personalised financial questions",
+        "Scenario Lab: paste any JSON profile, test the engine",
+        {"text": "Unseen scenario test harness (robustness)", "bold": true, "color": "6C4CE0"}
+      ],
+      "notes": "Key features list. Highlight unseen scenario test harness in purple bold."
+    },
+    {
+      "layout": "title_content",
+      "background": "F4F5F9",
+      "title": "LIVE DEMO",
+      "bullets": [
+        {"text": "GitHub: github.com/shoumik1908/Finance-Optimiser", "color": "6C4CE0"},
+        {"text": "Live: finance-optimiser.onrender.com", "bold": true, "color": "6C4CE0", "size": 22},
+        {"text": "Walkthrough:", "bold": true, "color": "1A1A2E"},
+        "1. Build a financial profile (5-step wizard)",
+        "2. View optimised plan with charts and AI recommendations",
+        "3. Simulate a life event — see plan adapt",
+        "4. Test with unseen JSON scenario"
+      ],
+      "notes": "Demo slide. Live URL in large purple bold. 4-step walkthrough."
+    },
+    {
+      "layout": "title_only",
+      "background": "14141F",
+      "title": "THANK YOU",
+      "subtitle": "Questions?\n\nLive Demo: finance-optimiser.onrender.com\nGitHub: github.com/shoumik1908/Finance-Optimiser",
+      "notes": "Dark navy background matching slide 1. Purple links. Q&A time."
+    }
+  ]
+}
